@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For You ♡</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;600&family=Lora:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --sky-top:#c9dff7; --sky-mid:#dce8f5; --lavender:#d6cef0;
+      --blush:#f5e6ef; --ink:#3a3250; --ink-light:#6b5f82;
+      --cream:#fdfaf5; --cloud-white:rgba(255,255,255,0.97);
+      --star:#fffbe6;
+    }
+    html { scroll-behavior:smooth; }
+    body {
+      background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 25%,var(--lavender) 55%,var(--blush) 100%);
+      min-height:100vh; font-family:'Lora',serif; color:var(--ink); overflow-x:hidden;
+    }
+
+    /* ── LOCKSCREEN ── */
+    #lockscreen {
+      position:fixed; inset:0; z-index:9999;
+      background:linear-gradient(160deg,#1a1530 0%,#2d2050 50%,#1a1530 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:28px; transition:opacity 0.9s ease, visibility 0.9s ease;
+    }
+    #lockscreen.unlocked { opacity:0; visibility:hidden; pointer-events:none; }
+
+    .lock-stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+    .lock-star {
+      position:absolute; background:#fff; border-radius:50%;
+      animation:twinkle ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100%{opacity:.15;transform:scale(1);}
+      50%{opacity:.9;transform:scale(1.4);}
+    }
+
+    .lock-title {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:clamp(1.3rem,4vw,1.9rem); color:#f0eaff;
+      text-align:center; line-height:1.5; z-index:1;
+    }
+    .lock-sub {
+      font-family:'Caveat',cursive; font-size:1rem;
+      color:#9b8fc0; z-index:1; text-align:center;
+    }
+    .lock-input-wrap { position:relative; z-index:1; }
+    #lock-input {
+      background:rgba(255,255,255,0.07);
+      border:1.5px solid rgba(255,255,255,0.2);
+      border-radius:50px; padding:14px 28px;
+      font-family:'Caveat',cursive; font-size:1.2rem;
+      color:#f0eaff; outline:none; text-align:center;
+      width:240px; letter-spacing:0.1em;
+      transition:border-color 0.3s, background 0.3s;
+    }
+    #lock-input::placeholder { color:rgba(255,255,255,0.25); }
+    #lock-input:focus { border-color:rgba(200,170,255,0.6); background:rgba(255,255,255,0.11); }
+    #lock-input.shake {
+      animation:shake 0.4s ease;
+      border-color:rgba(255,120,120,0.6);
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0);}
+      20%{transform:translateX(-8px);}
+      40%{transform:translateX(8px);}
+      60%{transform:translateX(-6px);}
+      80%{transform:translateX(6px);}
+    }
+    .lock-btn {
+      background:rgba(180,150,255,0.18);
+      border:1.5px solid rgba(180,150,255,0.35);
+      border-radius:50px; padding:13px 36px;
+      font-family:'Caveat',cursive; font-size:1.15rem;
+      color:#e8dcff; cursor:pointer; z-index:1;
+      transition:background 0.25s, transform 0.15s;
+    }
+    .lock-btn:hover { background:rgba(180,150,255,0.3); transform:scale(1.03); }
+    #lock-error {
+      font-family:'Caveat',cursive; font-size:1rem;
+      color:rgba(255,160,160,0.85); z-index:1;
+      min-height:1.4em; text-align:center;
+      transition:opacity 0.3s;
+    }
+    .lock-heart { font-size:2rem; z-index:1; animation:heartbeat 2s ease-in-out infinite; }
+    @keyframes heartbeat {
+      0%,100%{transform:scale(1);}
+      14%{transform:scale(1.18);}
+      28%{transform:scale(1);}
+      42%{transform:scale(1.1);}
+      56%{transform:scale(1);}
+    }
+
+    /* ── AMBIENT CLOUDS ── */
+    .ambient-clouds { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+    .amb {
+      position:absolute; background:rgba(255,255,255,0.4);
+      border-radius:50%; filter:blur(20px); animation:drift linear infinite;
+    }
+    .amb:nth-child(1){width:320px;height:110px;top:8%;left:-80px;animation-duration:38s;opacity:.45;}
+    .amb:nth-child(2){width:200px;height:80px;top:22%;right:-60px;animation-duration:52s;opacity:.3;animation-delay:-15s;}
+    .amb:nth-child(3){width:260px;height:90px;top:45%;left:-40px;animation-duration:44s;opacity:.35;animation-delay:-8s;}
+    .amb:nth-child(4){width:180px;height:65px;top:65%;right:-30px;animation-duration:60s;opacity:.25;animation-delay:-25s;}
+    .amb:nth-child(5){width:300px;height:100px;top:80%;left:-90px;animation-duration:35s;opacity:.35;animation-delay:-5s;}
+    @keyframes drift { from{transform:translateX(0);} to{transform:translateX(110vw);} }
+
+    /* ── PETALS ── */
+    .petals { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+    .petal {
+      position:absolute; width:12px; height:18px;
+      border-radius:50% 50% 50% 0; opacity:0;
+      animation:fallPetal linear infinite;
+    }
+    .petal:nth-child(1){left:8%;background:#f9d5e5;animation-duration:9s;animation-delay:0s;width:10px;height:15px;}
+    .petal:nth-child(2){left:18%;background:#e8d5f5;animation-duration:12s;animation-delay:2s;}
+    .petal:nth-child(3){left:32%;background:#f9d5e5;animation-duration:8s;animation-delay:4s;width:8px;height:13px;}
+    .petal:nth-child(4){left:54%;background:#d5e8f5;animation-duration:14s;animation-delay:1s;}
+    .petal:nth-child(5){left:68%;background:#f5e8d5;animation-duration:10s;animation-delay:6s;width:9px;height:14px;}
+    .petal:nth-child(6){left:80%;background:#f9d5e5;animation-duration:11s;animation-delay:3s;}
+    .petal:nth-child(7){left:90%;background:#e8d5f5;animation-duration:7s;animation-delay:5s;width:11px;height:16px;}
+    @keyframes fallPetal {
+      0%{opacity:0;transform:translateY(-30px) rotate(0deg);}
+      10%{opacity:.7;}
+      90%{opacity:.4;}
+      100%{opacity:0;transform:translateY(100vh) rotate(540deg);}
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      position:relative; z-index:1;
+      min-height:100vh; display:flex;
+      align-items:center; justify-content:center;
+      padding:60px 24px;
+    }
+
+    /* ── CLOUD CARD ── */
+    .cloud-card {
+      position:relative; max-width:640px; width:100%;
+      opacity:0; transform:translateY(40px);
+      transition:opacity 0.9s cubic-bezier(.22,1,.36,1), transform 0.9s cubic-bezier(.22,1,.36,1);
+    }
+    .cloud-card.visible { opacity:1; transform:translateY(0); }
+
+    .cloud-shape {
+      position:relative; background:var(--cloud-white);
+      border-radius:60px; padding:52px 56px 48px;
+      box-shadow:0 8px 40px rgba(160,140,200,0.18),0 2px 12px rgba(160,140,200,0.12);
+      transition:opacity 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+    }
+    .cloud-shape::before, .cloud-shape::after {
+      content:''; position:absolute;
+      background:var(--cloud-white); border-radius:50%;
+    }
+    .cloud-shape::before { width:180px;height:130px;top:-60px;left:60px; }
+    .cloud-shape::after  { width:120px;height:90px;top:-44px;right:100px; }
+    .cloud-bump {
+      position:absolute; background:var(--cloud-white);
+      border-radius:50%; width:100px; height:70px;
+      top:-30px; left:28%;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .cloud-eyebrow { font-family:'Caveat',cursive; font-size:1rem; color:var(--ink-light); letter-spacing:.12em; margin-bottom:18px; opacity:.75; }
+    .cloud-headline { font-family:'Playfair Display',serif; font-size:clamp(1.5rem,4vw,2rem); font-style:italic; color:var(--ink); line-height:1.45; margin-bottom:28px; }
+    .cloud-sub { font-family:'Caveat',cursive; font-size:1.1rem; color:var(--ink-light); opacity:.8; }
+    .scroll-hint { margin-top:36px; display:flex; flex-direction:column; align-items:center; gap:8px; font-family:'Caveat',cursive; font-size:.9rem; color:var(--ink-light); opacity:0; animation:fadeInHint 1.2s 1.8s forwards; }
+    @keyframes fadeInHint { to{opacity:.6;} }
+    .scroll-arrow { width:22px;height:22px; border-right:2px solid var(--ink-light); border-bottom:2px solid var(--ink-light); transform:rotate(45deg); animation:bounce 1.6s ease-in-out infinite; opacity:.6; }
+    @keyframes bounce { 0%,100%{transform:rotate(45deg) translateY(0);} 50%{transform:rotate(45deg) translateY(6px);} }
+
+    /* ── LETTER ── */
+    .letter-dateline { font-family:'Caveat',cursive; font-size:.95rem; color:var(--ink-light); margin-bottom:20px; opacity:.7; }
+    .letter-salutation { font-family:'Playfair Display',serif; font-style:italic; font-size:1.25rem; color:var(--ink); margin-bottom:16px; }
+    .letter-body { font-size:.97rem; line-height:1.85; color:var(--ink); opacity:.85; }
+    .letter-body p+p { margin-top:14px; }
+    .letter-sign { margin-top:28px; font-family:'Caveat',cursive; font-size:1.3rem; color:var(--ink); text-align:right; }
+
+    /* ── GALLERY CLOUD ── */
+    .gallery-title { font-family:'Playfair Display',serif; font-style:italic; font-size:1.2rem; color:var(--ink); margin-bottom:6px; text-align:center; }
+    .gallery-sub { font-family:'Caveat',cursive; font-size:.9rem; color:var(--ink-light); opacity:.7; text-align:center; margin-bottom:24px; }
+    .gallery-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    }
+    .gallery-slot {
+      aspect-ratio:1; border-radius:16px; overflow:hidden;
+      background:linear-gradient(135deg,#e8d5f5,#f5d5e8);
+      display:flex; align-items:center; justify-content:center;
+      position:relative; cursor:pointer;
+      transition:transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .gallery-slot:hover { transform:scale(1.04); box-shadow:0 6px 20px rgba(160,140,200,0.25); }
+    .gallery-slot img { width:100%; height:100%; object-fit:cover; display:none; }
+    .gallery-slot img.loaded { display:block; }
+    .gallery-placeholder {
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      font-family:'Caveat',cursive; font-size:.8rem; color:var(--ink-light); opacity:.6;
+    }
+    .gallery-placeholder span { font-size:1.6rem; }
+    .gallery-note { font-family:'Caveat',cursive; font-size:.85rem; color:var(--ink-light); opacity:.65; text-align:center; margin-top:16px; }
+
+    /* ── SPOTIFY CLOUD ── */
+    .spotify-title { font-family:'Playfair Display',serif; font-style:italic; font-size:1.2rem; color:var(--ink); text-align:center; margin-bottom:6px; }
+    .spotify-sub { font-family:'Caveat',cursive; font-size:.9rem; color:var(--ink-light); opacity:.7; text-align:center; margin-bottom:24px; }
+    .spotify-placeholder {
+      background:linear-gradient(135deg,#1a1a2e,#16213e);
+      border-radius:20px; padding:28px 24px;
+      display:flex; flex-direction:column; align-items:center; gap:16px;
+      color:#fff;
+    }
+    .spotify-logo { font-size:2.4rem; }
+    .spotify-playlist-title { font-family:'Caveat',cursive; font-size:1.1rem; opacity:.85; text-align:center; }
+    .spotify-bar { display:flex; gap:4px; align-items:flex-end; height:28px; }
+    .spotify-bar span {
+      width:4px; background:#1DB954; border-radius:2px;
+      animation:equalize ease-in-out infinite alternate;
+    }
+    .spotify-bar span:nth-child(1){height:60%;animation-duration:.6s;}
+    .spotify-bar span:nth-child(2){height:100%;animation-duration:.8s;animation-delay:.1s;}
+    .spotify-bar span:nth-child(3){height:45%;animation-duration:.5s;animation-delay:.2s;}
+    .spotify-bar span:nth-child(4){height:80%;animation-duration:.7s;animation-delay:.05s;}
+    .spotify-bar span:nth-child(5){height:55%;animation-duration:.9s;animation-delay:.15s;}
+    @keyframes equalize { from{transform:scaleY(.3);} to{transform:scaleY(1);} }
+    .spotify-note { font-family:'Caveat',cursive; font-size:.82rem; color:var(--ink-light); opacity:.6; text-align:center; margin-top:12px; }
+
+    /* ── CLOSE YOUR EYES CLOUD ── */
+    .eyes-cloud { text-align:center; }
+    .eyes-title { font-family:'Playfair Display',serif; font-style:italic; font-size:1.25rem; color:var(--ink); margin-bottom:8px; }
+    .eyes-sub { font-family:'Caveat',cursive; font-size:.95rem; color:var(--ink-light); opacity:.7; margin-bottom:28px; }
+    .eyes-btn {
+      background:linear-gradient(135deg,var(--lavender),var(--blush));
+      border:none; border-radius:50px; padding:16px 40px;
+      font-family:'Caveat',cursive; font-size:1.2rem; color:var(--ink);
+      cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+      box-shadow:0 4px 16px rgba(160,140,200,0.25);
+    }
+    .eyes-btn:hover { transform:scale(1.04); box-shadow:0 6px 24px rgba(160,140,200,0.35); }
+    .eyes-btn:active { transform:scale(0.97); }
+    .audio-player-wrap { margin-top:20px; display:none; flex-direction:column; align-items:center; gap:12px; }
+    .audio-player-wrap.shown { display:flex; }
+    .audio-player-wrap audio { width:100%; max-width:320px; border-radius:50px; }
+    .audio-note { font-family:'Caveat',cursive; font-size:.85rem; color:var(--ink-light); opacity:.65; }
+
+    /* ── STARMAP CLOUD ── */
+    .starmap-title { font-family:'Playfair Display',serif; font-style:italic; font-size:1.2rem; color:var(--ink); text-align:center; margin-bottom:4px; }
+    .starmap-date { font-family:'Caveat',cursive; font-size:.9rem; color:var(--ink-light); opacity:.7; text-align:center; margin-bottom:20px; }
+    .starmap-canvas-wrap {
+      border-radius:24px; overflow:hidden;
+      background:linear-gradient(160deg,#0d0d2b 0%,#1a1040 60%,#0d1a30 100%);
+      padding:4px; box-shadow:0 4px 24px rgba(80,50,120,0.3);
+    }
+    #starmap { display:block; width:100%; height:auto; border-radius:20px; }
+    .starmap-caption { font-family:'Caveat',cursive; font-size:.85rem; color:var(--ink-light); opacity:.65; text-align:center; margin-top:14px; }
+
+    /* ── COUNTER CLOUD ── */
+    .counter-title { font-family:'Playfair Display',serif; font-style:italic; font-size:clamp(1.1rem,3vw,1.35rem); color:var(--ink); line-height:1.5; margin-bottom:10px; text-align:center; }
+    .counter-oh { font-family:'Caveat',cursive; font-size:1.05rem; color:var(--ink-light); opacity:.75; margin-bottom:32px; text-align:center; }
+    .counter-grid { display:flex; justify-content:center; flex-wrap:wrap; gap:16px; margin-bottom:28px; }
+    .counter-unit { display:flex; flex-direction:column; align-items:center; min-width:68px; }
+    .counter-num { font-family:'Playfair Display',serif; font-size:clamp(2rem,6vw,2.8rem); font-weight:700; color:var(--ink); line-height:1; letter-spacing:-.02em; }
+    .counter-label { font-family:'Caveat',cursive; font-size:.85rem; color:var(--ink-light); opacity:.7; margin-top:6px; letter-spacing:.08em; }
+    .counter-divider { font-family:'Playfair Display',serif; font-size:2rem; color:var(--ink-light); opacity:.3; align-self:center; margin-top:-8px; }
+    .counter-since { font-family:'Caveat',cursive; font-size:.9rem; color:var(--ink-light); opacity:.6; text-align:center; }
+
+    /* ── BIRTHDAY CLOUD ── */
+    #s-bday { display:none; }
+    #s-bday.bday-visible { display:flex; }
+
+    .bday-cloud { text-align:center; }
+    .bday-title {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:clamp(1.4rem,4vw,2rem); color:var(--ink);
+      margin-bottom:6px; line-height:1.4;
+    }
+    .bday-sub {
+      font-family:'Caveat',cursive; font-size:1rem;
+      color:var(--ink-light); opacity:.7; margin-bottom:28px;
+    }
+
+    /* Cake */
+    .cake-wrap { display:flex; justify-content:center; margin-bottom:24px; }
+    .cake {
+      position:relative; width:140px;
+    }
+    .cake-base {
+      width:140px; height:52px; border-radius:12px;
+      background:linear-gradient(135deg,#f9c8d9,#f5a8c5);
+      position:relative; overflow:visible;
+    }
+    .cake-top {
+      width:140px; height:40px; border-radius:12px 12px 0 0;
+      background:linear-gradient(135deg,#e8b4d0,#d490b8);
+      position:absolute; top:-38px; left:0;
+    }
+    .cake-frosting {
+      position:absolute; top:-10px; left:0; width:100%;
+      display:flex; justify-content:space-around;
+    }
+    .cake-frosting span {
+      width:18px; height:18px;
+      background:white; border-radius:50% 50% 0 0;
+      opacity:.85;
+    }
+    .cake-candles {
+      position:absolute; top:-80px; left:0; width:100%;
+      display:flex; justify-content:space-around; padding:0 18px;
+    }
+    .candle {
+      display:flex; flex-direction:column; align-items:center; gap:0;
+    }
+    .candle-flame {
+      width:8px; height:12px;
+      background:radial-gradient(ellipse at 50% 80%,#fff176,#ffb300,#ff6f00);
+      border-radius:50% 50% 30% 30%;
+      animation:flicker 0.8s ease-in-out infinite alternate;
+      filter:drop-shadow(0 0 4px #ffb30088);
+    }
+    @keyframes flicker {
+      from{transform:scaleX(1) scaleY(1) rotate(-2deg);}
+      to{transform:scaleX(0.85) scaleY(1.1) rotate(2deg);}
+    }
+    .candle-body {
+      width:7px; height:24px; border-radius:3px;
+      background:linear-gradient(180deg,#f8bbd0,#f06292);
+    }
+
+    .bday-msg {
+      font-family:'Caveat',cursive; font-size:1.1rem;
+      color:var(--ink); line-height:1.7; opacity:.85;
+    }
+
+    /* Confetti canvas — fixed overlay, only active on birthday */
+    #confetti-canvas {
+      position:fixed; inset:0; z-index:2;
+      pointer-events:none; display:none;
+    }
+    #confetti-canvas.active { display:block; }
+
+    /* ── MOBILE ── */
+    @media(max-width:520px){
+      .cloud-shape{padding:44px 28px 40px;border-radius:40px;}
+      .cloud-shape::before{width:130px;height:90px;top:-44px;left:40px;}
+      .cloud-shape::after{width:90px;height:65px;top:-32px;right:60px;}
+      .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ LOCKSCREEN ══════════════ -->
+<div id="lockscreen">
+  <div class="lock-stars" id="lockStars"></div>
+  <div class="lock-heart">🌸</div>
+  <p class="lock-title">something was left here<br/>just for you</p>
+  <p class="lock-sub">whisper the word to open it ☁</p>
+  <div class="lock-input-wrap">
+    <input id="lock-input" type="text" placeholder="what's the word?" autocomplete="off" spellcheck="false"/>
+  </div>
+  <button class="lock-btn" onclick="tryUnlock()">open ♡</button>
+  <p id="lock-error"></p>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="ambient-clouds">
+  <div class="amb"></div><div class="amb"></div><div class="amb"></div>
+  <div class="amb"></div><div class="amb"></div>
+</div>
+<div class="petals">
+  <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+  <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+  <div class="petal"></div>
+</div>
+
+<!-- ── S1: Greeting ── -->
+<section id="s1">
+  <div class="cloud-card" id="card1">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape" style="text-align:center;">
+      <p class="cloud-eyebrow">✉ a little something for you</p>
+      <h1 class="cloud-headline">You've just read my letter,<br/>yes?</h1>
+      <p class="cloud-sub">There's more waiting below the clouds ☁</p>
+      <div class="scroll-hint">
+        <span>keep scrolling</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── S2: Letter ── -->
+<section id="s2">
+  <div class="cloud-card" id="card2">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape">
+      <p class="letter-dateline">somewhere between my heartbeats &amp; yours</p>
+      <p class="letter-salutation">My dearest,</p>
+      <div class="letter-body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vehicula ligula vel diam tincidunt, ut pretium eros ultricies. Curabitur malesuada sapien vel urna tincidunt, vel dignissim velit blandit.</p>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae.</p>
+        <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit — and yet here I am, writing to you anyway.</p>
+      </div>
+      <p class="letter-sign">yours, always ♡</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── S3: Gallery ── -->
+<section id="s3">
+  <div class="cloud-card" id="card3">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape">
+      <p class="gallery-title">some of my favourite moments with you</p>
+      <p class="gallery-sub">tap any photo to see it bigger ☁</p>
+      <div class="gallery-grid">
+        <!-- Replace src="" with your actual image paths after uploading to GitHub -->
+        <div class="gallery-slot" onclick="openPhoto(this)">
+          <img src="Picture1.jpg" alt="photo 1"/>
+          <div class="gallery-placeholder"><span>📷</span><span>photo 1</span></div>
+        </div>
+        <div class="gallery-slot" onclick="openPhoto(this)">
+          <img src="Picture2.jpg" alt="photo 2"/>
+          <div class="gallery-placeholder"><span>📷</span><span>photo 2</span></div>
+        </div>
+        <div class="gallery-slot" onclick="openPhoto(this)">
+          <img src="Picture3.jpg" alt="photo 3"/>
+          <div class="gallery-placeholder"><span>📷</span><span>photo 3</span></div>
+        </div>
+        <div class="gallery-slot" onclick="openPhoto(this)">
+          <img src="Picture4.jpg" alt="photo 4"/>
+          <div class="gallery-placeholder"><span>📷</span><span>photo 4</span></div>
+        </div>
+        <div class="gallery-slot" onclick="openPhoto(this)">
+          <img src="Picture5.jpg" alt="photo 5"/>
+          <div class="gallery-placeholder"><span>📷</span><span>photo 5</span></div>
+        </div>
+        <div class="gallery-slot" onclick="openPhoto(this)">
+          <img src="Picture6.jpg" alt="photo 6"/>
+          <div class="gallery-placeholder"><span>📷</span><span>photo 6</span></div>
+        </div>
+      </div>
+      <p class="gallery-note">// replace the src="" values with your image filenames after uploading to GitHub</p>
+    </div>
+  </div>
+</section>
+
+<!-- Photo lightbox -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(20,10,40,0.88);align-items:center;justify-content:center;cursor:pointer;" onclick="closeLightbox()">
+  <img id="lightbox-img" style="max-width:90vw;max-height:88vh;border-radius:20px;box-shadow:0 8px 48px rgba(0,0,0,0.5);"/>
+</div>
+
+<!-- ── S4: Spotify ── -->
+<section id="s4">
+  <div class="cloud-card" id="card4">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape">
+      <p class="spotify-title">songs that remind me of you</p>
+      <p class="spotify-sub">our little playlist ☁</p>
+
+      <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/6LiqkwTUpc123G1jxvr0p5?utm_source=generator&si=af63df47b637439f" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <p style="font-family:'Caveat',cursive;font-size:.9rem;color:var(--ink-light);opacity:.6;text-align:center;margin-top:14px;">count them if you want ☁</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── S5: Close Your Eyes ── -->
+<section id="s5">
+  <div class="cloud-card" id="card5">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape eyes-cloud">
+      <p class="eyes-title">close your eyes for a moment</p>
+      <p class="eyes-sub">I have something I want to say to you ☁</p>
+      <button class="eyes-btn" onclick="playVoice()">I'm ready ♡</button>
+      <div class="audio-player-wrap" id="audioWrap">
+        <!-- Replace voice-message.mp3 with your actual audio file hosted alongside this HTML -->
+        <audio id="voiceAudio" controls src="voice-message.mp3"></audio>
+        <p class="audio-note">// record yourself and rename the file "voice-message.mp3" — upload it alongside this HTML on GitHub</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── S6: Starmap ── -->
+<section id="s6">
+  <div class="cloud-card" id="card6">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape">
+      <p class="starmap-title">the sky on the night it started</p>
+      <p class="starmap-date">January 23, 2026 — the night I started courting you ☁</p>
+      <div class="starmap-canvas-wrap">
+        <canvas id="starmap" width="520" height="320"></canvas>
+      </div>
+      <p class="starmap-caption">every star was watching that night</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONFETTI CANVAS (birthday only) ── -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ── S-BDAY: Birthday (July 1 only) ── -->
+<section id="s-bday">
+  <div class="cloud-card" id="card-bday">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape bday-cloud">
+      <p class="bday-title">Happy Birthday ♡</p>
+      <p class="bday-sub">I hope today feels as wonderful as you make me feel ☁</p>
+      <div class="cake-wrap">
+        <div class="cake">
+          <div class="cake-candles">
+            <div class="candle"><div class="candle-flame"></div><div class="candle-body"></div></div>
+            <div class="candle"><div class="candle-flame"></div><div class="candle-body"></div></div>
+            <div class="candle"><div class="candle-flame"></div><div class="candle-body"></div></div>
+          </div>
+          <div class="cake-top"></div>
+          <div class="cake-base">
+            <div class="cake-frosting">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="bday-msg">
+        On this day, the world got a little brighter<br/>
+        because you were born into it.<br/>
+        I'm so glad you exist. ♡
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── S7: Counter ── -->
+<section id="s7">
+  <div class="cloud-card" id="card7">
+    <div class="cloud-bump"></div>
+    <div class="cloud-shape">
+      <p class="counter-title">How long has it been?</p>
+      <p class="counter-oh">oh.. it's been —</p>
+      <div class="counter-grid">
+        <div class="counter-unit">
+          <span class="counter-num" id="cnt-months">0</span>
+          <span class="counter-label">months</span>
+        </div>
+        <div class="counter-divider">·</div>
+        <div class="counter-unit">
+          <span class="counter-num" id="cnt-days">0</span>
+          <span class="counter-label">days</span>
+        </div>
+        <div class="counter-divider">·</div>
+        <div class="counter-unit">
+          <span class="counter-num" id="cnt-hours">0</span>
+          <span class="counter-label">hours</span>
+        </div>
+        <div class="counter-divider">·</div>
+        <div class="counter-unit">
+          <span class="counter-num" id="cnt-mins">0</span>
+          <span class="counter-label">minutes</span>
+        </div>
+        <div class="counter-divider">·</div>
+        <div class="counter-unit">
+          <span class="counter-num" id="cnt-secs">0</span>
+          <span class="counter-label">seconds</span>
+        </div>
+      </div>
+      <p class="counter-since">since January 9, 2026 ☁</p>
+    </div>
+  </div>
+</section>
+
+<script>
+// ══ LOCKSCREEN ══
+const PASSWORD = 'yourword'; // ← CHANGE THIS to your actual password
+
+// Generate twinkling stars on lockscreen
+(function(){
+  const wrap = document.getElementById('lockStars');
+  for(let i=0;i<80;i++){
+    const s = document.createElement('div');
+    s.className='lock-star';
+    const size = Math.random()*2.5+0.8;
+    s.style.cssText=`
+      width:${size}px;height:${size}px;
+      top:${Math.random()*100}%;left:${Math.random()*100}%;
+      animation-duration:${Math.random()*2.5+1.5}s;
+      animation-delay:-${Math.random()*3}s;
+    `;
+    wrap.appendChild(s);
+  }
+})();
+
+function tryUnlock(){
+  const val = document.getElementById('lock-input').value.trim().toLowerCase();
+  const err = document.getElementById('lock-error');
+  if(val === PASSWORD.toLowerCase()){
+    document.getElementById('lockscreen').classList.add('unlocked');
+  } else {
+    err.textContent = 'fuck off ♡';
+    const input = document.getElementById('lock-input');
+    input.classList.remove('shake');
+    void input.offsetWidth; // reflow
+    input.classList.add('shake');
+    setTimeout(()=>{ err.textContent=''; input.classList.remove('shake'); },2200);
+  }
+}
+document.getElementById('lock-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') tryUnlock();
+});
+
+// ══ SCROLL FADE ══
+const cards = document.querySelectorAll('.cloud-card');
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.12});
+cards.forEach(c=>io.observe(c));
+
+window.addEventListener('scroll',()=>{
+  const scrollY=window.scrollY, winH=window.innerHeight;
+  cards.forEach((card,i)=>{
+    if(i===cards.length-1) return;
+    const section=card.closest('section');
+    const sectionTop=scrollY+section.getBoundingClientRect().top;
+    const exit=Math.max(0,Math.min(1,(scrollY-sectionTop-winH*0.1)/(winH*0.7)));
+    const shape=card.querySelector('.cloud-shape');
+    const bump=card.querySelector('.cloud-bump');
+    if(exit>0.05){
+      const o=Math.max(0,1-exit*1.6);
+      shape.style.opacity=o;
+      shape.style.transform=`scale(${1-exit*0.04}) translateY(${-exit*28}px)`;
+      shape.style.filter=`blur(${exit*5}px)`;
+      if(bump){ bump.style.opacity=o; bump.style.filter=`blur(${exit*5}px)`; }
+    } else {
+      shape.style.opacity=''; shape.style.transform=''; shape.style.filter='';
+      if(bump){ bump.style.opacity=''; bump.style.filter=''; }
+    }
+  });
+});
+
+// ══ GALLERY LIGHTBOX ══
+function openPhoto(slot){
+  const img = slot.querySelector('img');
+  if(!img || !img.src || img.src===window.location.href) return;
+  document.getElementById('lightbox-img').src=img.src;
+  const lb=document.getElementById('lightbox');
+  lb.style.display='flex';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').style.display='none';
+}
+
+// ══ VOICE MESSAGE ══
+function playVoice(){
+  const wrap=document.getElementById('audioWrap');
+  wrap.classList.add('shown');
+  const audio=document.getElementById('voiceAudio');
+  audio.play().catch(()=>{});
+}
+
+// ══ LIVE COUNTER ══
+const START_COUNT = new Date('2026-01-09T00:00:00');
+function pad(n){ return String(n).padStart(2,'0'); }
+function updateCounter(){
+  const now=new Date();
+  const diff=now-START_COUNT;
+  if(diff<0) return;
+  let months=(now.getFullYear()-START_COUNT.getFullYear())*12+(now.getMonth()-START_COUNT.getMonth());
+  if(now.getDate()<START_COUNT.getDate()) months--;
+  months=Math.max(0,months);
+  const mStart=new Date(START_COUNT);
+  mStart.setMonth(mStart.getMonth()+months);
+  const rd=now-mStart;
+  document.getElementById('cnt-months').textContent=months;
+  document.getElementById('cnt-days').textContent=pad(Math.floor(rd/86400000));
+  document.getElementById('cnt-hours').textContent=pad(Math.floor((rd%86400000)/3600000));
+  document.getElementById('cnt-mins').textContent=pad(Math.floor((rd%3600000)/60000));
+  document.getElementById('cnt-secs').textContent=pad(Math.floor((rd%60000)/1000));
+}
+updateCounter();
+setInterval(updateCounter,1000);
+
+// ══ BIRTHDAY DETECTION & CONFETTI ══
+(function(){
+  const now = new Date();
+  const isBirthday = now.getMonth() === 6 && now.getDate() === 1; // July 1
+
+  if(isBirthday){
+    document.getElementById('s-bday').classList.add('bday-visible');
+
+    // Register birthday card with observer
+    const bdayCard = document.getElementById('card-bday');
+    io.observe(bdayCard);
+
+    // Start confetti when birthday section enters view
+    const bdayObserver = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting) startConfetti();
+        else stopConfetti();
+      });
+    }, {threshold:0.2});
+    bdayObserver.observe(document.getElementById('s-bday'));
+  }
+})();
+
+const confettiCanvas = document.getElementById('confetti-canvas');
+const cctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiRAF = null;
+let confettiRunning = false;
+
+function resizeConfetti(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeConfetti();
+window.addEventListener('resize', resizeConfetti);
+
+const CONFETTI_COLORS = [
+  '#f9c8d9','#c8e6f9','#d9f9c8','#f9e9c8','#e0c8f9',
+  '#f9c8e9','#c8f9f0','#fff176','#ffb3c6','#b3d9ff'
+];
+
+function makeConfettiPiece(){
+  return {
+    x: Math.random() * window.innerWidth,
+    y: -12,
+    w: Math.random()*8+5,
+    h: Math.random()*5+3,
+    color: CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)],
+    angle: Math.random()*360,
+    spin: (Math.random()-0.5)*4,
+    vx: (Math.random()-0.5)*2,
+    vy: Math.random()*2.5+1.5,
+    opacity: Math.random()*0.4+0.6
+  };
+}
+
+function drawConfetti(){
+  cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  confettiPieces.forEach(p=>{
+    cctx.save();
+    cctx.translate(p.x,p.y);
+    cctx.rotate(p.angle*Math.PI/180);
+    cctx.globalAlpha=p.opacity;
+    cctx.fillStyle=p.color;
+    cctx.beginPath();
+    cctx.ellipse(0,0,p.w/2,p.h/2,0,0,Math.PI*2);
+    cctx.fill();
+    cctx.restore();
+    p.x+=p.vx; p.y+=p.vy;
+    p.angle+=p.spin;
+    p.vy+=0.04; // gravity
+  });
+  confettiPieces=confettiPieces.filter(p=>p.y<window.innerHeight+20);
+}
+
+function confettiLoop(){
+  if(!confettiRunning) return;
+  if(confettiPieces.length<180){
+    for(let i=0;i<4;i++) confettiPieces.push(makeConfettiPiece());
+  }
+  drawConfetti();
+  confettiRAF=requestAnimationFrame(confettiLoop);
+}
+
+function startConfetti(){
+  if(confettiRunning) return;
+  confettiRunning=true;
+  confettiCanvas.classList.add('active');
+  confettiLoop();
+}
+
+function stopConfetti(){
+  confettiRunning=false;
+  confettiCanvas.classList.remove('active');
+  if(confettiRAF){ cancelAnimationFrame(confettiRAF); confettiRAF=null; }
+  confettiPieces=[];
+  cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+}
+
+// Procedural star map using the date as a seed — constellation lines + stars
+// Based on approximate northern hemisphere sky for Jan 23
+(function drawStarmap(){
+  const canvas=document.getElementById('starmap');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+
+  // Sky gradient
+  const sky=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.7);
+  sky.addColorStop(0,'#1a1040');
+  sky.addColorStop(0.5,'#0f0d2a');
+  sky.addColorStop(1,'#060620');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+
+  // Milky way faint band
+  const mw=ctx.createLinearGradient(0,H*0.1,W,H*0.9);
+  mw.addColorStop(0,'rgba(180,160,255,0)');
+  mw.addColorStop(0.4,'rgba(180,160,255,0.04)');
+  mw.addColorStop(0.6,'rgba(180,160,255,0.06)');
+  mw.addColorStop(1,'rgba(180,160,255,0)');
+  ctx.fillStyle=mw; ctx.fillRect(0,0,W,H);
+
+  // Seeded random
+  let seed=20260123;
+  function rand(){ seed=(seed*1664525+1013904223)&0xffffffff; return (seed>>>0)/0xffffffff; }
+
+  // Background stars
+  for(let i=0;i<320;i++){
+    const x=rand()*W, y=rand()*H;
+    const r=rand()*1.1+0.2;
+    const a=rand()*0.5+0.2;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    const hue=rand()<0.15?'220,200,255':rand()<0.3?'255,240,200':'255,255,255';
+    ctx.fillStyle=`rgba(${hue},${a})`;
+    ctx.fill();
+  }
+
+  // Named visible constellations for Jan 23 (approx positions scaled to canvas)
+  const constellations = [
+    {
+      name:'Orion', color:'rgba(180,210,255,0.85)',
+      stars:[
+        {x:.18,y:.28,r:2.8,label:'Betelgeuse'},{x:.30,y:.32,r:2.0},
+        {x:.26,y:.45,r:2.2},{x:.22,y:.55,r:1.8},
+        {x:.34,y:.57,r:1.8},{x:.38,y:.42,r:2.6,label:'Rigel'},
+        {x:.20,y:.38,r:1.6},{x:.35,y:.38,r:1.6}
+      ],
+      lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,1],[6,2],[7,2],[6,0],[7,5]]
+    },
+    {
+      name:'Taurus', color:'rgba(255,220,160,0.8)',
+      stars:[
+        {x:.52,y:.22,r:2.7,label:'Aldebaran'},{x:.60,y:.18,r:1.5},
+        {x:.65,y:.16,r:1.5},{x:.58,y:.28,r:1.4},{x:.64,y:.26,r:1.4}
+      ],
+      lines:[[0,1],[1,2],[0,3],[3,4]]
+    },
+    {
+      name:'Gemini', color:'rgba(200,240,200,0.8)',
+      stars:[
+        {x:.72,y:.14,r:2.5,label:'Castor'},{x:.78,y:.16,r:2.5,label:'Pollux'},
+        {x:.74,y:.28,r:1.5},{x:.80,y:.30,r:1.5},
+        {x:.76,y:.42,r:1.4},{x:.82,y:.44,r:1.4}
+      ],
+      lines:[[0,2],[1,3],[2,4],[3,5],[0,1],[4,5]]
+    },
+    {
+      name:'Canis Major', color:'rgba(220,200,255,0.8)',
+      stars:[
+        {x:.28,y:.75,r:3.2,label:'Sirius'},{x:.34,y:.82,r:1.6},
+        {x:.38,y:.78,r:1.5},{x:.42,y:.84,r:1.4},{x:.24,y:.82,r:1.4}
+      ],
+      lines:[[0,1],[1,2],[2,3],[0,4]]
+    },
+    {
+      name:'Pleiades', color:'rgba(160,200,255,0.75)',
+      stars:[
+        {x:.55,y:.12,r:1.4},{x:.57,y:.10,r:1.3},{x:.59,y:.13,r:1.2},
+        {x:.61,y:.10,r:1.2},{x:.60,y:.08,r:1.2},{x:.56,y:.08,r:1.1},{x:.58,y:.15,r:1.1}
+      ],
+      lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[2,6]]
+    }
+  ];
+
+  constellations.forEach(con=>{
+    // Draw constellation lines
+    ctx.strokeStyle=con.color.replace('0.8','0.25').replace('0.85','0.22').replace('0.75','0.2');
+    ctx.lineWidth=0.8;
+    con.lines.forEach(([a,b])=>{
+      const sa=con.stars[a], sb=con.stars[b];
+      ctx.beginPath();
+      ctx.moveTo(sa.x*W,sa.y*H);
+      ctx.lineTo(sb.x*W,sb.y*H);
+      ctx.stroke();
+    });
+
+    // Draw stars
+    con.stars.forEach(star=>{
+      const sx=star.x*W, sy=star.y*H;
+      // Glow
+      const grd=ctx.createRadialGradient(sx,sy,0,sx,sy,star.r*5);
+      grd.addColorStop(0,con.color);
+      grd.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath(); ctx.arc(sx,sy,star.r*5,0,Math.PI*2);
+      ctx.fillStyle=grd; ctx.fill();
+      // Core
+      ctx.beginPath(); ctx.arc(sx,sy,star.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.fill();
+    });
+
+    // Label
+    const cx=con.stars.reduce((s,st)=>s+st.x,0)/con.stars.length;
+    const cy=Math.min(...con.stars.map(s=>s.y))-0.05;
+    ctx.font=`10px 'Caveat', cursive`;
+    ctx.fillStyle='rgba(200,200,255,0.5)';
+    ctx.textAlign='center';
+    ctx.fillText(con.name, cx*W, cy*H);
+  });
+
+  // Date label
+  ctx.font="bold 13px 'Caveat', cursive";
+  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.textAlign='right';
+  ctx.fillText('Jan 23, 2026  ·  Northern Sky', W-16, H-14);
+})();
+</script>
+</body>
+</html>
