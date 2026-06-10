@@ -264,6 +264,80 @@
     .counter-divider { font-family:'Playfair Display',serif; font-size:2rem; color:var(--ink-light); opacity:.3; align-self:center; margin-top:-8px; }
     .counter-since { font-family:'Caveat',cursive; font-size:.9rem; color:var(--ink-light); opacity:.6; text-align:center; }
 
+    /* ── BIRTHDAY CLOUD ── */
+    #s-bday { display:none; }
+    #s-bday.bday-visible { display:flex; }
+
+    .bday-cloud { text-align:center; }
+    .bday-title {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:clamp(1.4rem,4vw,2rem); color:var(--ink);
+      margin-bottom:6px; line-height:1.4;
+    }
+    .bday-sub {
+      font-family:'Caveat',cursive; font-size:1rem;
+      color:var(--ink-light); opacity:.7; margin-bottom:28px;
+    }
+
+    /* Cake */
+    .cake-wrap { display:flex; justify-content:center; margin-bottom:24px; }
+    .cake {
+      position:relative; width:140px;
+    }
+    .cake-base {
+      width:140px; height:52px; border-radius:12px;
+      background:linear-gradient(135deg,#f9c8d9,#f5a8c5);
+      position:relative; overflow:visible;
+    }
+    .cake-top {
+      width:140px; height:40px; border-radius:12px 12px 0 0;
+      background:linear-gradient(135deg,#e8b4d0,#d490b8);
+      position:absolute; top:-38px; left:0;
+    }
+    .cake-frosting {
+      position:absolute; top:-10px; left:0; width:100%;
+      display:flex; justify-content:space-around;
+    }
+    .cake-frosting span {
+      width:18px; height:18px;
+      background:white; border-radius:50% 50% 0 0;
+      opacity:.85;
+    }
+    .cake-candles {
+      position:absolute; top:-80px; left:0; width:100%;
+      display:flex; justify-content:space-around; padding:0 18px;
+    }
+    .candle {
+      display:flex; flex-direction:column; align-items:center; gap:0;
+    }
+    .candle-flame {
+      width:8px; height:12px;
+      background:radial-gradient(ellipse at 50% 80%,#fff176,#ffb300,#ff6f00);
+      border-radius:50% 50% 30% 30%;
+      animation:flicker 0.8s ease-in-out infinite alternate;
+      filter:drop-shadow(0 0 4px #ffb30088);
+    }
+    @keyframes flicker {
+      from{transform:scaleX(1) scaleY(1) rotate(-2deg);}
+      to{transform:scaleX(0.85) scaleY(1.1) rotate(2deg);}
+    }
+    .candle-body {
+      width:7px; height:24px; border-radius:3px;
+      background:linear-gradient(180deg,#f8bbd0,#f06292);
+    }
+
+    .bday-msg {
+      font-family:'Caveat',cursive; font-size:1.1rem;
+      color:var(--ink); line-height:1.7; opacity:.85;
+    }
+
+    /* Confetti canvas — fixed overlay, only active on birthday */
+    #confetti-canvas {
+      position:fixed; inset:0; z-index:2;
+      pointer-events:none; display:none;
+    }
+    #confetti-canvas.active { display:block; }
+
     /* ── MOBILE ── */
     @media(max-width:520px){
       .cloud-shape{padding:44px 28px 40px;border-radius:40px;}
@@ -327,388 +401,4 @@
         <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae.</p>
         <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit — and yet here I am, writing to you anyway.</p>
       </div>
-      <p class="letter-sign">yours, always ♡</p>
-    </div>
-  </div>
-</section>
-
-<!-- ── S3: Gallery ── -->
-<section id="s3">
-  <div class="cloud-card" id="card3">
-    <div class="cloud-bump"></div>
-    <div class="cloud-shape">
-      <p class="gallery-title">some of my favourite moments with you</p>
-      <p class="gallery-sub">tap any photo to see it bigger ☁</p>
-      <div class="gallery-grid">
-        <!-- Replace src="" with your actual image paths after uploading to GitHub -->
-        <div class="gallery-slot" onclick="openPhoto(this)">
-          <img src="" alt="photo 1"/>
-          <div class="gallery-placeholder"><span>📷</span><span>photo 1</span></div>
-        </div>
-        <div class="gallery-slot" onclick="openPhoto(this)">
-          <img src="" alt="photo 2"/>
-          <div class="gallery-placeholder"><span>📷</span><span>photo 2</span></div>
-        </div>
-        <div class="gallery-slot" onclick="openPhoto(this)">
-          <img src="" alt="photo 3"/>
-          <div class="gallery-placeholder"><span>📷</span><span>photo 3</span></div>
-        </div>
-        <div class="gallery-slot" onclick="openPhoto(this)">
-          <img src="" alt="photo 4"/>
-          <div class="gallery-placeholder"><span>📷</span><span>photo 4</span></div>
-        </div>
-        <div class="gallery-slot" onclick="openPhoto(this)">
-          <img src="" alt="photo 5"/>
-          <div class="gallery-placeholder"><span>📷</span><span>photo 5</span></div>
-        </div>
-        <div class="gallery-slot" onclick="openPhoto(this)">
-          <img src="" alt="photo 6"/>
-          <div class="gallery-placeholder"><span>📷</span><span>photo 6</span></div>
-        </div>
-      </div>
-      <p class="gallery-note">// replace the src="" values with your image filenames after uploading to GitHub</p>
-    </div>
-  </div>
-</section>
-
-<!-- Photo lightbox -->
-<div id="lightbox" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(20,10,40,0.88);align-items:center;justify-content:center;cursor:pointer;" onclick="closeLightbox()">
-  <img id="lightbox-img" style="max-width:90vw;max-height:88vh;border-radius:20px;box-shadow:0 8px 48px rgba(0,0,0,0.5);"/>
-</div>
-
-<!-- ── S4: Spotify ── -->
-<section id="s4">
-  <div class="cloud-card" id="card4">
-    <div class="cloud-bump"></div>
-    <div class="cloud-shape">
-      <p class="spotify-title">songs that remind me of you</p>
-      <p class="spotify-sub">our little playlist ☁</p>
-
-      <!-- OPTION A: Once you have your Spotify embed link, replace the block below -->
-      <!-- with: <iframe style="border-radius:20px" src="YOUR_SPOTIFY_EMBED_URL"     -->
-      <!-- width="100%" height="352" frameBorder="0" allowfullscreen=""              -->
-      <!-- allow="autoplay; clipboard-write; encrypted-media; fullscreen;            -->
-      <!-- picture-in-picture" loading="lazy"></iframe>                              -->
-
-      <div class="spotify-placeholder">
-        <div class="spotify-logo">🎵</div>
-        <p class="spotify-playlist-title">our playlist — coming soon</p>
-        <div class="spotify-bar">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-      </div>
-      <p class="spotify-note">// swap the placeholder above with your Spotify embed iframe when ready</p>
-    </div>
-  </div>
-</section>
-
-<!-- ── S5: Close Your Eyes ── -->
-<section id="s5">
-  <div class="cloud-card" id="card5">
-    <div class="cloud-bump"></div>
-    <div class="cloud-shape eyes-cloud">
-      <p class="eyes-title">close your eyes for a moment</p>
-      <p class="eyes-sub">I have something I want to say to you ☁</p>
-      <button class="eyes-btn" onclick="playVoice()">I'm ready ♡</button>
-      <div class="audio-player-wrap" id="audioWrap">
-        <!-- Replace voice-message.mp3 with your actual audio file hosted alongside this HTML -->
-        <audio id="voiceAudio" controls src="voice-message.mp3"></audio>
-        <p class="audio-note">// record yourself and rename the file "voice-message.mp3" — upload it alongside this HTML on GitHub</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── S6: Starmap ── -->
-<section id="s6">
-  <div class="cloud-card" id="card6">
-    <div class="cloud-bump"></div>
-    <div class="cloud-shape">
-      <p class="starmap-title">the sky on the night it started</p>
-      <p class="starmap-date">January 23, 2026 — the night I started courting you ☁</p>
-      <div class="starmap-canvas-wrap">
-        <canvas id="starmap" width="520" height="320"></canvas>
-      </div>
-      <p class="starmap-caption">every star was watching that night</p>
-    </div>
-  </div>
-</section>
-
-<!-- ── S7: Counter ── -->
-<section id="s7">
-  <div class="cloud-card" id="card7">
-    <div class="cloud-bump"></div>
-    <div class="cloud-shape">
-      <p class="counter-title">How long has it been?</p>
-      <p class="counter-oh">oh.. it's been —</p>
-      <div class="counter-grid">
-        <div class="counter-unit">
-          <span class="counter-num" id="cnt-months">0</span>
-          <span class="counter-label">months</span>
-        </div>
-        <div class="counter-divider">·</div>
-        <div class="counter-unit">
-          <span class="counter-num" id="cnt-days">0</span>
-          <span class="counter-label">days</span>
-        </div>
-        <div class="counter-divider">·</div>
-        <div class="counter-unit">
-          <span class="counter-num" id="cnt-hours">0</span>
-          <span class="counter-label">hours</span>
-        </div>
-        <div class="counter-divider">·</div>
-        <div class="counter-unit">
-          <span class="counter-num" id="cnt-mins">0</span>
-          <span class="counter-label">minutes</span>
-        </div>
-        <div class="counter-divider">·</div>
-        <div class="counter-unit">
-          <span class="counter-num" id="cnt-secs">0</span>
-          <span class="counter-label">seconds</span>
-        </div>
-      </div>
-      <p class="counter-since">since January 9, 2026 ☁</p>
-    </div>
-  </div>
-</section>
-
-<script>
-// ══ LOCKSCREEN ══
-const PASSWORD = 'yourword'; // ← CHANGE THIS to your actual password
-
-// Generate twinkling stars on lockscreen
-(function(){
-  const wrap = document.getElementById('lockStars');
-  for(let i=0;i<80;i++){
-    const s = document.createElement('div');
-    s.className='lock-star';
-    const size = Math.random()*2.5+0.8;
-    s.style.cssText=`
-      width:${size}px;height:${size}px;
-      top:${Math.random()*100}%;left:${Math.random()*100}%;
-      animation-duration:${Math.random()*2.5+1.5}s;
-      animation-delay:-${Math.random()*3}s;
-    `;
-    wrap.appendChild(s);
-  }
-})();
-
-function tryUnlock(){
-  const val = document.getElementById('lock-input').value.trim().toLowerCase();
-  const err = document.getElementById('lock-error');
-  if(val === PASSWORD.toLowerCase()){
-    document.getElementById('lockscreen').classList.add('unlocked');
-  } else {
-    err.textContent = 'fuck off ♡';
-    const input = document.getElementById('lock-input');
-    input.classList.remove('shake');
-    void input.offsetWidth; // reflow
-    input.classList.add('shake');
-    setTimeout(()=>{ err.textContent=''; input.classList.remove('shake'); },2200);
-  }
-}
-document.getElementById('lock-input').addEventListener('keydown', e=>{
-  if(e.key==='Enter') tryUnlock();
-});
-
-// ══ SCROLL FADE ══
-const cards = document.querySelectorAll('.cloud-card');
-const io = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
-},{threshold:0.12});
-cards.forEach(c=>io.observe(c));
-
-window.addEventListener('scroll',()=>{
-  const scrollY=window.scrollY, winH=window.innerHeight;
-  cards.forEach((card,i)=>{
-    if(i===cards.length-1) return;
-    const section=card.closest('section');
-    const sectionTop=scrollY+section.getBoundingClientRect().top;
-    const exit=Math.max(0,Math.min(1,(scrollY-sectionTop-winH*0.1)/(winH*0.7)));
-    const shape=card.querySelector('.cloud-shape');
-    const bump=card.querySelector('.cloud-bump');
-    if(exit>0.05){
-      const o=Math.max(0,1-exit*1.6);
-      shape.style.opacity=o;
-      shape.style.transform=`scale(${1-exit*0.04}) translateY(${-exit*28}px)`;
-      shape.style.filter=`blur(${exit*5}px)`;
-      if(bump){ bump.style.opacity=o; bump.style.filter=`blur(${exit*5}px)`; }
-    } else {
-      shape.style.opacity=''; shape.style.transform=''; shape.style.filter='';
-      if(bump){ bump.style.opacity=''; bump.style.filter=''; }
-    }
-  });
-});
-
-// ══ GALLERY LIGHTBOX ══
-function openPhoto(slot){
-  const img = slot.querySelector('img');
-  if(!img || !img.src || img.src===window.location.href) return;
-  document.getElementById('lightbox-img').src=img.src;
-  const lb=document.getElementById('lightbox');
-  lb.style.display='flex';
-}
-function closeLightbox(){
-  document.getElementById('lightbox').style.display='none';
-}
-
-// ══ VOICE MESSAGE ══
-function playVoice(){
-  const wrap=document.getElementById('audioWrap');
-  wrap.classList.add('shown');
-  const audio=document.getElementById('voiceAudio');
-  audio.play().catch(()=>{});
-}
-
-// ══ LIVE COUNTER ══
-const START_COUNT = new Date('2026-01-09T00:00:00');
-function pad(n){ return String(n).padStart(2,'0'); }
-function updateCounter(){
-  const now=new Date();
-  const diff=now-START_COUNT;
-  if(diff<0) return;
-  let months=(now.getFullYear()-START_COUNT.getFullYear())*12+(now.getMonth()-START_COUNT.getMonth());
-  if(now.getDate()<START_COUNT.getDate()) months--;
-  months=Math.max(0,months);
-  const mStart=new Date(START_COUNT);
-  mStart.setMonth(mStart.getMonth()+months);
-  const rd=now-mStart;
-  document.getElementById('cnt-months').textContent=months;
-  document.getElementById('cnt-days').textContent=pad(Math.floor(rd/86400000));
-  document.getElementById('cnt-hours').textContent=pad(Math.floor((rd%86400000)/3600000));
-  document.getElementById('cnt-mins').textContent=pad(Math.floor((rd%3600000)/60000));
-  document.getElementById('cnt-secs').textContent=pad(Math.floor((rd%60000)/1000));
-}
-updateCounter();
-setInterval(updateCounter,1000);
-
-// ══ STARMAP (Jan 23 2026) ══
-// Procedural star map using the date as a seed — constellation lines + stars
-// Based on approximate northern hemisphere sky for Jan 23
-(function drawStarmap(){
-  const canvas=document.getElementById('starmap');
-  const ctx=canvas.getContext('2d');
-  const W=canvas.width, H=canvas.height;
-
-  // Sky gradient
-  const sky=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.7);
-  sky.addColorStop(0,'#1a1040');
-  sky.addColorStop(0.5,'#0f0d2a');
-  sky.addColorStop(1,'#060620');
-  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
-
-  // Milky way faint band
-  const mw=ctx.createLinearGradient(0,H*0.1,W,H*0.9);
-  mw.addColorStop(0,'rgba(180,160,255,0)');
-  mw.addColorStop(0.4,'rgba(180,160,255,0.04)');
-  mw.addColorStop(0.6,'rgba(180,160,255,0.06)');
-  mw.addColorStop(1,'rgba(180,160,255,0)');
-  ctx.fillStyle=mw; ctx.fillRect(0,0,W,H);
-
-  // Seeded random
-  let seed=20260123;
-  function rand(){ seed=(seed*1664525+1013904223)&0xffffffff; return (seed>>>0)/0xffffffff; }
-
-  // Background stars
-  for(let i=0;i<320;i++){
-    const x=rand()*W, y=rand()*H;
-    const r=rand()*1.1+0.2;
-    const a=rand()*0.5+0.2;
-    ctx.beginPath();
-    ctx.arc(x,y,r,0,Math.PI*2);
-    const hue=rand()<0.15?'220,200,255':rand()<0.3?'255,240,200':'255,255,255';
-    ctx.fillStyle=`rgba(${hue},${a})`;
-    ctx.fill();
-  }
-
-  // Named visible constellations for Jan 23 (approx positions scaled to canvas)
-  const constellations = [
-    {
-      name:'Orion', color:'rgba(180,210,255,0.85)',
-      stars:[
-        {x:.18,y:.28,r:2.8,label:'Betelgeuse'},{x:.30,y:.32,r:2.0},
-        {x:.26,y:.45,r:2.2},{x:.22,y:.55,r:1.8},
-        {x:.34,y:.57,r:1.8},{x:.38,y:.42,r:2.6,label:'Rigel'},
-        {x:.20,y:.38,r:1.6},{x:.35,y:.38,r:1.6}
-      ],
-      lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,1],[6,2],[7,2],[6,0],[7,5]]
-    },
-    {
-      name:'Taurus', color:'rgba(255,220,160,0.8)',
-      stars:[
-        {x:.52,y:.22,r:2.7,label:'Aldebaran'},{x:.60,y:.18,r:1.5},
-        {x:.65,y:.16,r:1.5},{x:.58,y:.28,r:1.4},{x:.64,y:.26,r:1.4}
-      ],
-      lines:[[0,1],[1,2],[0,3],[3,4]]
-    },
-    {
-      name:'Gemini', color:'rgba(200,240,200,0.8)',
-      stars:[
-        {x:.72,y:.14,r:2.5,label:'Castor'},{x:.78,y:.16,r:2.5,label:'Pollux'},
-        {x:.74,y:.28,r:1.5},{x:.80,y:.30,r:1.5},
-        {x:.76,y:.42,r:1.4},{x:.82,y:.44,r:1.4}
-      ],
-      lines:[[0,2],[1,3],[2,4],[3,5],[0,1],[4,5]]
-    },
-    {
-      name:'Canis Major', color:'rgba(220,200,255,0.8)',
-      stars:[
-        {x:.28,y:.75,r:3.2,label:'Sirius'},{x:.34,y:.82,r:1.6},
-        {x:.38,y:.78,r:1.5},{x:.42,y:.84,r:1.4},{x:.24,y:.82,r:1.4}
-      ],
-      lines:[[0,1],[1,2],[2,3],[0,4]]
-    },
-    {
-      name:'Pleiades', color:'rgba(160,200,255,0.75)',
-      stars:[
-        {x:.55,y:.12,r:1.4},{x:.57,y:.10,r:1.3},{x:.59,y:.13,r:1.2},
-        {x:.61,y:.10,r:1.2},{x:.60,y:.08,r:1.2},{x:.56,y:.08,r:1.1},{x:.58,y:.15,r:1.1}
-      ],
-      lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[2,6]]
-    }
-  ];
-
-  constellations.forEach(con=>{
-    // Draw constellation lines
-    ctx.strokeStyle=con.color.replace('0.8','0.25').replace('0.85','0.22').replace('0.75','0.2');
-    ctx.lineWidth=0.8;
-    con.lines.forEach(([a,b])=>{
-      const sa=con.stars[a], sb=con.stars[b];
-      ctx.beginPath();
-      ctx.moveTo(sa.x*W,sa.y*H);
-      ctx.lineTo(sb.x*W,sb.y*H);
-      ctx.stroke();
-    });
-
-    // Draw stars
-    con.stars.forEach(star=>{
-      const sx=star.x*W, sy=star.y*H;
-      // Glow
-      const grd=ctx.createRadialGradient(sx,sy,0,sx,sy,star.r*5);
-      grd.addColorStop(0,con.color);
-      grd.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.beginPath(); ctx.arc(sx,sy,star.r*5,0,Math.PI*2);
-      ctx.fillStyle=grd; ctx.fill();
-      // Core
-      ctx.beginPath(); ctx.arc(sx,sy,star.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.fill();
-    });
-
-    // Label
-    const cx=con.stars.reduce((s,st)=>s+st.x,0)/con.stars.length;
-    const cy=Math.min(...con.stars.map(s=>s.y))-0.05;
-    ctx.font=`10px 'Caveat', cursive`;
-    ctx.fillStyle='rgba(200,200,255,0.5)';
-    ctx.textAlign='center';
-    ctx.fillText(con.name, cx*W, cy*H);
-  });
-
-  // Date label
-  ctx.font="bold 13px 'Caveat', cursive";
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.textAlign='right';
-  ctx.fillText('Jan 23, 2026  ·  Northern Sky', W-16, H-14);
-})();
-</script>
-</body>
-</html>
+      <p class="letter-sign">y
