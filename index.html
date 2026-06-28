@@ -566,7 +566,7 @@
 
 <script>
 // ══ LOCKSCREEN ══
-const PASSWORD = 'yourword'; // ← CHANGE THIS to your actual password
+const PASSWORD = 'iloveyou'; // ← CHANGE THIS to your actual password
 
 // Generate twinkling stars on lockscreen
 (function(){
@@ -591,7 +591,7 @@ function tryUnlock(){
   if(val === PASSWORD.toLowerCase()){
     document.getElementById('lockscreen').classList.add('unlocked');
   } else {
-    err.textContent = 'fuck off ♡';
+    err.textContent = 'hey, who are you? ♡';
     const input = document.getElementById('lock-input');
     input.classList.remove('shake');
     void input.offsetWidth; // reflow
@@ -677,7 +677,7 @@ setInterval(updateCounter,1000);
 // ══ BIRTHDAY DETECTION & CONFETTI ══
 (function(){
   const now = new Date();
-  const isBirthday = now.getMonth() === 6 && now.getDate() === 1; // July 1
+  const isBirthday = now.getMonth() === 6 && now.getDate() === 29; // July 1, test for june 29, will change to 7-1 if 6=june determined.
 
   if(isBirthday){
     document.getElementById('s-bday').classList.add('bday-visible');
