@@ -677,7 +677,7 @@ setInterval(updateCounter,1000);
 // ══ BIRTHDAY DETECTION & CONFETTI ══
 (function(){
   const now = new Date();
-  const isBirthday = now.getMonth() === 5 && now.getDate() === 29; // July 1, test for june 29, will change to 7-1 if 6=june determined. tested 5-29 to see if 5= june, if success change back to 6-1
+  const isBirthday = now.getMonth() === 6 && now.getDate() === 1; // July 1, test for june 29, will change to 7-1 if 6=june determined. tested 5-29 to see if 5= june, if success change back to 6-1
 
   if(isBirthday){
     document.getElementById('s-bday').classList.add('bday-visible');
